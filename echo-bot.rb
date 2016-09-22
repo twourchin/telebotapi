@@ -6,9 +6,7 @@ begin
 
   client = TeleBotApi::Client.new(config["token"])
   client.getUpdates do |msg|
-    p msg
     message = TeleBotApi::Message.new(msg[:message])
-    puts message
 
     unless message.sticker.nil?
       puts "Get stiker from #{message.from.username}"
@@ -24,6 +22,8 @@ begin
       })
     end
   end
-rescue => exception
-  puts exception
+rescue SystemExit, Interrupt
+  # raise
+rescue Exception => e
+  #...
 end

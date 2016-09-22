@@ -71,7 +71,7 @@ class TeleBotApi
       if @httpSender.nil?
         @httpSender = Net::HTTP.new(@apiUrl.host, @apiUrl.port)
         @httpSender.use_ssl=true
-        @httpSender.set_debug_output $stderr
+        # @httpSender.set_debug_output $stderr
       end
 
       begin
