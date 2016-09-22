@@ -75,9 +75,11 @@ class TeleBotApi
       end
 
       begin
-        response = @httpSender.request_post(@apiUrl.request_uri + aMethod, aJson, { "content-type" => "application/json", "Connection" => "keep-alive" })
+        response = @httpSender.request_post(@apiUrl.request_uri + aMethod, aJson,
+         { "content-type" => "application/json",
+            "Connection" => "keep-alive" })
       rescue
-        p response
+        raise
       end
 
       return response

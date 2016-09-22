@@ -2,24 +2,6 @@ class TeleBotApi
 
   class Type
 
-    # def parseHash1(hash)
-    #   hash.each do |k,v|
-    #     case all_fields[k].to_s
-    #     when 'TeleBotApi::User'
-    #       puts "A"
-    #       self.instance_variable_set("@#{k.to_s}", User.new(v))
-    #     when 'TeleBotApi::Chat'
-    #       self.instance_variable_set("@#{k.to_s}", Chat.new(v))
-    #     when 'TeleBotApi::Sticker'
-    #       self.instance_variable_set("@#{k.to_s}", Sticker.new(v))
-    #     when 'Fixnum', 'String', 'TrueClass', 'FalseClass', ''
-    #       self.instance_variable_set("@#{k.to_s}", v)
-    #     else
-    #       self.instance_variable_set("@#{k.to_s}", v)
-    #     end
-    #   end
-    # end
-
     def Type.createAccessors(hash)
       self.send(:define_method, 'tele_fields', proc{hash})
       hash.each do |k,v|
@@ -30,11 +12,22 @@ class TeleBotApi
 
     def parseHash(hash)
       hash.each do |k,v|
+        puts tele_fields[k].to_s
         case tele_fields[k].to_s
         when 'Fixnum', 'String', 'TrueClass', 'FalseClass', 'Float'
           self.instance_variable_set("@#{k.to_s}", v)
         else
-          self.instance_variable_set("@#{k.to_s}", tele_fields[k].new(v))
+          if tele_fields[k].instance_of?(Array)
+            array = []
+            puts v
+            v.each do |value|
+              p value
+              array = array << (tele_fields[k][0]).new(value)
+            end
+            self.instance_variable_set("@#{k.to_s}", array)
+          else
+            self.instance_variable_set("@#{k.to_s}", tele_fields[k].new(v))
+          end
         end
       end
     end

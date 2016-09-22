@@ -7,7 +7,7 @@ begin
   client = TeleBotApi::Client.new(config["token"])
   client.getUpdates do |msg|
     message = TeleBotApi::Message.new(msg[:message])
-
+    p message
     unless message.sticker.nil?
       puts "Get stiker from #{message.from.username}"
       client.sendSticker({
