@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require './lib/telebotapi/types.rb'
 
 class TeleBotApi
   TELEGRAMBOTURL = 'https://api.telegram.org/'
@@ -24,7 +25,7 @@ class TeleBotApi
         text:     text
       }
       message[:reply_to_message_id] = reply_to_message_id unless reply_to_message_id.nil?
-      
+
       response = httpSend('sendMessage', message.to_json)
     end
 
@@ -84,26 +85,5 @@ class TeleBotApi
       return response
     end
   end
-
-  # class User
-  #
-  #   def User.parse(json)
-  #
-  #   end
-  #
-  # end
-  #
-  # class Chat
-  #
-  # end
-  #
-  # class Message
-  #
-  # end
-  #
-
-  # class MessageEntity
-  #
-  # end
 
 end
