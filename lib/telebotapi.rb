@@ -19,14 +19,12 @@ class TeleBotApi
       return response
     end
 
-    def sendMessage(chat, text, reply_to_message_id=nil)
-      message = {
-        chat_id:  chat,
-        text:     text
-      }
-      message[:reply_to_message_id] = reply_to_message_id unless reply_to_message_id.nil?
-
+    def sendMessage(message)
       response = httpSend('sendMessage', message.to_json)
+    end
+
+    def sendSticker(message)
+      response = httpSend('sendSticker', message.to_json)
     end
 
     def getUpdates(timeout=60)
@@ -73,7 +71,7 @@ class TeleBotApi
       if @httpSender.nil?
         @httpSender = Net::HTTP.new(@apiUrl.host, @apiUrl.port)
         @httpSender.use_ssl=true
-        # @httpSender.set_debug_output $stderr
+        @httpSender.set_debug_output $stderr
       end
 
       begin

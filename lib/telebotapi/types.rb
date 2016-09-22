@@ -95,6 +95,8 @@ class TeleBotApi
         file_size:	Fixnum
     }
 
+    createAccessors @@fields
+    
   end
 
   class Voice < Type

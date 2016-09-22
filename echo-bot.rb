@@ -6,10 +6,24 @@ begin
 
   client = TeleBotApi::Client.new(config["token"])
   client.getUpdates do |msg|
-    # p msg
-    p TeleBotApi::Message.new(msg[:message])
-    client.sendMessage(msg[:message][:chat][:id], msg[:message][:text],msg[:message][:message_id])
-  end
-rescue
+    p msg
+    message = TeleBotApi::Message.new(msg[:message])
+    puts message
 
+    unless message.sticker.nil?
+      puts "Get stiker from #{message.from.username}"
+      client.sendSticker({
+          chat_id:  message.from.id,
+          sticker:  message.sticker.file_id
+        })
+    else
+      puts "Get message: \"#{message.text}\" from #{message.from.username}"
+      client.sendMessage({
+        chat_id:  message.from.id,
+        text:     message.text
+      })
+    end
+  end
+rescue => exception
+  puts exception
 end
