@@ -18,8 +18,14 @@ class TeleBotApi
       return response
     end
 
-    def sendMessage(chat, text)
-      response = httpSend('sendMessage', { chat_id: chat, text: text }.to_json)
+    def sendMessage(chat, text, reply_to_message_id=nil)
+      message = {
+        chat_id:  chat,
+        text:     text
+      }
+      message[:reply_to_message_id] = reply_to_message_id unless reply_to_message_id.nil?
+      
+      response = httpSend('sendMessage', message.to_json)
     end
 
     def getUpdates(timeout=60)
