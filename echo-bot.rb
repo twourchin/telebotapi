@@ -25,5 +25,5 @@ begin
 rescue SystemExit, Interrupt
   # raise
 rescue Exception => e
-  #...
+  raise
 end
