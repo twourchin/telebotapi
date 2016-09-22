@@ -19,12 +19,20 @@ class TeleBotApi
       return response
     end
 
+    def sendMethod(method, message)
+      response = httpSend(method, message.to_json)
+    end
+
     def sendMessage(message)
       response = httpSend('sendMessage', message.to_json)
     end
 
     def sendSticker(message)
       response = httpSend('sendSticker', message.to_json)
+    end
+
+    def sendPhoto(message)
+      response = httpSend('sendPhoto', message.to_json)
     end
 
     def getUpdates(timeout=60)

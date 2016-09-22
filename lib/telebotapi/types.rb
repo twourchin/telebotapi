@@ -12,16 +12,13 @@ class TeleBotApi
 
     def parseHash(hash)
       hash.each do |k,v|
-        puts tele_fields[k].to_s
         case tele_fields[k].to_s
         when 'Fixnum', 'String', 'TrueClass', 'FalseClass', 'Float'
           self.instance_variable_set("@#{k.to_s}", v)
         else
           if tele_fields[k].instance_of?(Array)
             array = []
-            puts v
             v.each do |value|
-              p value
               array = array << (tele_fields[k][0]).new(value)
             end
             self.instance_variable_set("@#{k.to_s}", array)
@@ -85,8 +82,7 @@ class TeleBotApi
       width:	Fixnum,
       height:	Fixnum,
       file_size:	Fixnum,
-      user:	TeleBotApi::User,
-      last_name:	String
+      file_path: String
     })
   end
 
