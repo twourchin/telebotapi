@@ -19,7 +19,7 @@ class TeleBotApi
           if tele_fields[k].instance_of?(Array)
             array = []
             v.each do |value|
-              array = array << (tele_fields[k][0]).new(value)
+              array.push tele_fields[k][0].new(value)
             end
             self.instance_variable_set("@#{k.to_s}", array)
           else
@@ -32,6 +32,31 @@ class TeleBotApi
     def initialize(hash)
       parseHash(hash)
     end
+
+    def match(hash)
+      compareResult = true
+      hash.each do |key, value|
+        if self.respond_to? "#{key.to_s}"
+          instanceVariable = self.instance_variable_get "@#{key.to_s}"
+          if instanceVariable.respond_to? 'compare'
+            compareResult = (compareResult and instanceVariable.compare(value))
+          else
+            if value.instance_of? Proc
+              compareResult = (compareResult and (value.call(instanceVariable)))
+            else
+              compareResult = (compareResult and (instanceVariable == value))
+            end
+          end
+        else
+          compareResult = false
+        end
+        unless compareResult
+          break
+        end
+      end
+      return compareResult
+    end
+
   end
 
   class User < Type
