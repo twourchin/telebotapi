@@ -2,65 +2,63 @@ class TeleBotApi
 
   class Type
 
-    def Type.createAccessors(hash)
-      self.send(:define_method, 'tele_fields', proc{hash})
+    def Type.hash_accessors(hash)
+      self.send(:define_method, 'api_fields', proc{ hash })
       hash.each do |k,v|
-        self.send(:define_method, k, proc{self.instance_variable_get("@#{k.to_s}")})
-        self.send(:define_method, "#{k.to_s}=", proc{|v| self.instance_variable_set("@#{k.to_s}", v)})
+        self.send(:define_method, k, proc{ self.instance_variable_get("@#{k}") })
+        self.send(:define_method, "#{k}=", proc{ |v| self.instance_variable_set("@#{k}", v) })
       end
     end
 
-    def parseHash(hash)
+    def parse_hash(hash)
       hash.each do |k,v|
-        case tele_fields[k].to_s
+        case api_fields[k].to_s
         when 'Fixnum', 'String', 'TrueClass', 'FalseClass', 'Float'
-          self.instance_variable_set("@#{k.to_s}", v)
+          self.instance_variable_set("@#{k}", v)
         else
-          if tele_fields[k].instance_of?(Array)
+          if api_fields[k].instance_of?(Array)
             array = []
             v.each do |value|
-              array.push tele_fields[k][0].new(value)
+              array.push api_fields[k][0].new(value)
             end
-            self.instance_variable_set("@#{k.to_s}", array)
+            self.instance_variable_set("@#{k}", array)
           else
-            self.instance_variable_set("@#{k.to_s}", tele_fields[k].new(v))
+            self.instance_variable_set("@#{k}", api_fields[k].new(v))
           end
         end
       end
     end
 
     def initialize(hash)
-      parseHash(hash)
+      parse_hash(hash)
     end
 
-    def match(hash)
-      compareResult = true
+    def hash_match(hash)
+      is_match = true
       hash.each do |key, value|
-        if self.respond_to? "#{key.to_s}"
-          instanceVariable = self.instance_variable_get "@#{key.to_s}"
-          if instanceVariable.respond_to? 'compare'
-            compareResult = (compareResult and instanceVariable.compare(value))
+        if self.respond_to? "#{key}"
+          inst_value = self.instance_variable_get "@#{key}"
+          if inst_value.respond_to? 'hash_match'
+            is_match = is_match && inst_value.hash_match(value)
           else
             if value.instance_of? Proc
-              compareResult = (compareResult and (value.call(instanceVariable)))
+              is_match = is_match && (value.call(inst_value))
             else
-              compareResult = (compareResult and (instanceVariable == value))
+              is_match = is_match && (inst_value == value)
             end
           end
         else
-          compareResult = false
+          is_match = false
         end
-        unless compareResult
-          break
-        end
+        break unless is_match
       end
-      return compareResult
+      is_match
     end
 
   end
 
   class User < Type
-    createAccessors ({
+    hash_accessors ({
       id:	Fixnum,
       first_name:	String,
       last_name:	String,
@@ -69,7 +67,7 @@ class TeleBotApi
   end
 
   class Chat < Type
-    createAccessors ({
+    hash_accessors ({
       id:	Fixnum,
       type:	String,
       title:	String,
@@ -80,7 +78,7 @@ class TeleBotApi
   end
 
   class MessageEntity < Type
-    createAccessors ({
+    hash_accessors ({
       type:	String,
       offset:	Fixnum,
       length:	Fixnum,
@@ -91,7 +89,7 @@ class TeleBotApi
   end
 
   class Audio < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       duration:	Fixnum,
       performer:	String,
@@ -102,7 +100,7 @@ class TeleBotApi
   end
 
   class PhotoSize < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       width:	Fixnum,
       height:	Fixnum,
@@ -112,7 +110,7 @@ class TeleBotApi
   end
 
   class Video < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       width:	Fixnum,
       height:	Fixnum,
@@ -124,7 +122,7 @@ class TeleBotApi
   end
 
   class Sticker < Type
-    createAccessors ({
+    hash_accessors ({
         file_id:	String,
         width:	Fixnum,
         height:	Fixnum,
@@ -135,7 +133,7 @@ class TeleBotApi
   end
 
   class Voice < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       duration:	Fixnum,
       mime_type:	String,
@@ -144,7 +142,7 @@ class TeleBotApi
   end
 
   class Document < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       thumb:	TeleBotApi::PhotoSize,
       file_name:	String,
@@ -154,7 +152,7 @@ class TeleBotApi
   end
 
   class Voice < Type
-    createAccessors ({
+    hash_accessors ({
       file_id:	String,
       duration:	Fixnum,
       mime_type:	String,
@@ -163,7 +161,7 @@ class TeleBotApi
   end
 
   class Contact < Type
-    createAccessors ({
+    hash_accessors ({
       phone_number:	String,
       first_name:	String,
       last_name:	String,
@@ -172,14 +170,14 @@ class TeleBotApi
   end
 
   class Location < Type
-    createAccessors ({
+    hash_accessors ({
       longitude:	Float,
       latitude:	Float
     })
   end
 
   class Venue < Type
-    createAccessors ({
+    hash_accessors ({
       location:	TeleBotApi::Location,
       title:	String,
       address:	String,
@@ -187,8 +185,16 @@ class TeleBotApi
     })
   end
 
+  class File < Type
+    hash_accessors ({
+      file_id:	String,
+      file_size:	Fixnum,
+      file_path:	String
+      })
+  end
+
   class Message < Type
-    createAccessors ({
+    hash_accessors ({
       message_id: Fixnum,	#Fixnum
       from: TeleBotApi::User,	#User
       date: Fixnum,	#Fixnum
@@ -221,14 +227,6 @@ class TeleBotApi
       migrate_to_chat_id: Fixnum,	#Fixnum
       migrate_from_chat_id: Fixnum,	#Fixnum
       pinned_message: TeleBotApi::Message	#Message
-    })
-  end
-
-  class File < Type
-    createAccessors ({
-      file_id:	String,
-      file_size:	Fixnum,
-      file_path:	String
     })
   end
 

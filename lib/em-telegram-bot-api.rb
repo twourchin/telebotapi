@@ -18,7 +18,6 @@ module EventMachine
       end
 
       def get_updates
-        puts "startUpdate"
         request_options = {
           :body => { offset: @update_id, timeout: 15 }.to_json,
           :keepalive => true,
@@ -56,8 +55,8 @@ module EventMachine
             @update_id = update[:update_id]+1 if update[:update_id] >= @update_id
             message = TeleBotApi::Message.new(update[:message])
             @subs.clone.each do |key, sub|
-              if message.match sub[:rule]
-                EM.schedule { sub[:block].(message) }
+              if message.hash_match sub[:rule]
+                sub[:block].(message)
               end
             end
           end
